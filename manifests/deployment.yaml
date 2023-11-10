@@ -1,0 +1,44 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: argocd-mock-git-server
+  namespace: default
+  annotations:
+    deployment.kubernetes.io/revision: '1'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: argocd-mock-git-server
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: argocd-mock-git-server
+    spec:
+      containers:
+        - name: container
+          image: 'quay.io/anjoseph/argocd-mock-git-server:latest'
+          ports:
+            - containerPort: 8341
+              name: http1
+              protocol: TCP
+            - containerPort: 8342
+              name: http2
+              protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: Always
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
+  revisionHistoryLimit: 10
+  progressDeadlineSeconds: 600
